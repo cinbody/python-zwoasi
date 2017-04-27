@@ -602,12 +602,12 @@ class Camera(object):
             r[k] = self.get_control_value(controls[k]['ControlType'])[0]
         return r
 
-	#	added this to allow broader use of 'controls' from client code							#cinbody
+	#	added this to allow broader use of 'controls' from client code					#cinbody
 
-    def get_control_values(self, controls):														#cinbody
-        r = {}																					#cinbody
-        for k in controls:																		#cinbody
-            r[k] = self.get_control_value(controls[k]['ControlType'])[0]						#cinbody
+    def get_control_values(self, controls):									#cinbody
+        r = {}													#cinbody
+        for k in controls:											#cinbody
+            r[k] = self.get_control_value(controls[k]['ControlType'])[0]					#cinbody
         return r																				#cinbody
 
 
