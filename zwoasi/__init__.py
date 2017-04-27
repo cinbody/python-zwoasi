@@ -21,7 +21,7 @@ __license__ = 'MIT'
 
 
 def get_num_cameras():
-    """Retrieves the number of ZWO ASI cameras that are connected. Type :class:`int`."""
+    """Retrieves the number of ZWO ASI cameras that are connected."""
     return zwolib.ASIGetNumOfConnectedCameras()
 
 
@@ -301,17 +301,17 @@ class ZWO_Error(Exception):
         Exception.__init__(self, message)
 
 
-class ZWO_IOError(ZWO_Error):
+class ZWO_IOError(Exception):
     """Exception class for all errors returned from the ASI SDK library."""
     def __init__(self, message, error_code=None):
-        ZWO_Error.__init__(self, message)
+        Exception.__init__(self, message)
         self.error_code = error_code
 
 
-class ZWO_CaptureError(ZWO_Error):
-    """Exception class for when :func:`Camera.capture()` fails."""
+class ZWO_CaptureError(Exception):
+    """Exception class for when :func:`capture()` fails."""
     def __init__(self, message, exposure_status=None):
-        ZWO_Error.__init__(self, message)
+        Exception.__init__(self, message)
         self.exposure_status = exposure_status
 
 
@@ -565,9 +565,9 @@ class Camera(object):
 
         Video mode must have been started previously otherwise a :class:`ZWO_Error` will be raised. A new buffer
         will be used to store the image unless one has been supplied with the `buffer` keyword argument.
-        If `filename` is not ``None`` the image is saved using :py:meth:`PIL.Image.Image.save()`.
+        If `filename` is not ``None`` the image is saved using :func:`PIL.Image.Image.save()`.
         :func:`capture_video_frame()` will wait indefinitely unless a `timeout` has been given.
-        The SDK suggests that the `timeout` value, in milliseconds, should be twice the exposure plus 500 ms."""
+        The SDK suggests that the `timeout` value, in milliseconds, is twice the exposure plus 500 ms."""
         data = self.get_video_data(buffer_=buffer_, timeout=timeout)
         whbi = self.get_roi_format()
         shape = [whbi[1], whbi[0]]
@@ -601,6 +601,15 @@ class Camera(object):
         for k in controls:
             r[k] = self.get_control_value(controls[k]['ControlType'])[0]
         return r
+
+	#	added this to allow broader use of 'controls' from client code							#cinbody
+
+    def get_control_values(self, controls):														#cinbody
+        r = {}																					#cinbody
+        for k in controls:																		#cinbody
+            r[k] = self.get_control_value(controls[k]['ControlType'])[0]						#cinbody
+        return r																				#cinbody
+
 
     def auto_exposure(self, auto=('Exposure', 'Gain')):
         controls = self.get_controls()
@@ -673,8 +682,8 @@ class _ASI_CONTROL_CAPS(c.Structure):
         ('MaxValue', c.c_long),
         ('MinValue', c.c_long),
         ('DefaultValue', c.c_long),
-        ('IsAutoSupported', c.c_int),
-        ('IsWritable', c.c_int),
+        ('IsAutoSupported', c.c_bool),
+        ('IsWritable', c.c_bool),
         ('ControlType', c.c_int),
         ('Unused', c.c_char * 32),
         ]
